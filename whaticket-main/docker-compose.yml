@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - waticket
+
+  frontend:
+    build: ./frontend
+    env_file: ./frontend/.env
+    restart: always
+    ports:
+      - "3001:3000"
+    networks:
+      - waticket
+
+  nginx:
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /etc/letsencrypt-live:/etc/letsencrypt-live
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - waticket
+
+networks:
+  waticket:
+    driver: bridge
